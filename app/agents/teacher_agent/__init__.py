@@ -15,14 +15,12 @@ def get_prompt(
 	*,
 	problem_title: str,
 	problem_description: str,
-	is_sandbox: bool,
 	student_code: str,
 ) -> str:
 	return SYSTEM_PROMPT.format(
 		{
 			'problem_title': problem_title,
 			'problem_description': problem_description,
-			'is_sandbox': str(is_sandbox),
 			'student_code': student_code,
 		}
 	)
@@ -36,7 +34,6 @@ def get_teacher_agent(
 	*,
 	problem_title: str,
 	problem_description: str,
-	is_sandbox: bool,
 	student_code: str,
 ) -> BaseChatModel:
 	model = get_model_by_difficulty(TASK_DIFFICULTY)
@@ -47,7 +44,6 @@ def get_teacher_agent(
 		system_prompt=get_prompt(
 			problem_title=problem_title,
 			problem_description=problem_description,
-			is_sandbox=is_sandbox,
 			student_code=student_code,
 		),
 	)
@@ -57,14 +53,13 @@ def call_teacher_agent(agent_input: AgentInput) -> str:
 	brain = get_teacher_agent(
 		problem_title=agent_input.problem_title,
 		problem_description=agent_input.problem_description,
-		is_sandbox=agent_input.is_sandbox,
 		student_code=agent_input.student_code,
 	)
 	response = brain.invoke(
 		{
 			'messages': [
 				HumanMessage(
-					content=f'* Código do Aluno: {agent_input.student_code}\n* Mensagem do Aluno: {agent_input.user_message}'
+					content=f'* Código do Aluno: <student_code>{agent_input.student_code}</student_code>\n* Mensagem do Aluno: <student_message>{agent_input.user_message}</student_message>'
 				)
 			]
 		},
